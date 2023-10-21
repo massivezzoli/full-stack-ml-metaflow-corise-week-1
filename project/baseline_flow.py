@@ -93,13 +93,13 @@ class BaselineNLPFlow(FlowSpec):
         current.card.append(Markdown(f"Most common classs is {self.most_common_class}, there cannot be {1-self.most_common_class} class predictions in baseline"))
         if self.most_common_class == 1 :
             current.card.append(Markdown("### False Positives Examples"))
-            
+            err_df = self.valdf.query("(label == 0) & (baseline_pred == 1)").sample(n=5)
             current.card.append(
-                Table.from_dataframe(
-                    self.valdf.query("(label == 0) & (baseline_pred == 1)").sample(n=5),
-                    truncate=False
-                )
+                Table.from_dataframe(err_df, truncate=False)
             )
+            current.card.append(Markdown(f"""**TEST**: {
+                "<br />".join([row[1].to_string() for row in err_df[['review']].iterrows()])
+                }"""))
         else:
             current.card.append(Markdown("### False Negativew Examples"))
             current.card.append(
